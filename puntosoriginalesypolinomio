@@ -1,0 +1,52 @@
+import numpy as np
+import pandas as pd
+from scipy.optimize import curve_fit
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+def leer_datos_desde_csv(ruta_archivo):
+    datos = pd.read_csv(ruta_archivo)
+    return datos
+
+# Función polinómica para ajuste
+def polinomio(xy, a, b, c, d, e, f):
+    x, y = xy
+    return a * x**2 + b * y**2 + c * x * y + d * x + e * y + f
+
+ruta_archivo = 'Capa 4i.csv'  
+
+datos = leer_datos_desde_csv(ruta_archivo)
+
+x = datos['x'].values
+y = datos['y'].values
+z = datos['z'].values
+
+# Normalizar datos
+x_norm = (x - np.mean(x)) / np.std(x)
+y_norm = (y - np.mean(y)) / np.std(y)
+z_norm = (z - np.mean(z)) / np.std(z)
+
+# Ajuste polinomio a datos
+popt, pcov = curve_fit(polinomio, (x_norm, y_norm), z_norm)
+
+print(f'Coeficientes del polinomio: {popt}')
+
+x_surf, y_surf = np.meshgrid(np.linspace(np.min(x_norm), np.max(x_norm), 100),
+                             np.linspace(np.min(y_norm), np.max(y_norm), 100))
+z_surf = polinomio((x_surf.ravel(), y_surf.ravel()), *popt).reshape(x_surf.shape)
+
+# Graficar
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+ax.scatter(x_norm, y_norm, z_norm, color='blue', label='Datos Originales')
+
+ax.plot_surface(x_surf, y_surf, z_surf, color='r', alpha=0.5)
+
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+
+ax.legend()
+
+plt.show()
