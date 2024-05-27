@@ -1,0 +1,35 @@
+import numpy as np
+from scipy.interpolate import griddata
+import matplotlib.pyplot as plt
+
+data = np.loadtxt('Capa 3i.csv', delimiter=',')
+
+x = data[:, 0]
+y = data[:, 1]
+z = data[:, 2]
+
+xi = np.linspace(x.min(), x.max(), 100)
+yi = np.linspace(y.min(), y.max(), 100)
+xi, yi = np.meshgrid(xi, yi)
+
+zi = griddata((x, y), z, (xi, yi), method='nearest')
+
+# ecuación de la superficie
+A = np.vstack([xi.ravel(), yi.ravel(), np.ones(xi.ravel().size)]).T
+coeffs, _, _, _ = np.linalg.lstsq(A, zi.ravel(), rcond=None)
+
+print("Valores de coeffs:")
+print(coeffs)
+
+print("Ecuación de la superficie:")
+print(f"z = {coeffs[0]:.2f}x + {coeffs[1]:.2f}y + {coeffs[2]:.2f}")
+
+# Graficar
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.plot_surface(xi, yi, zi, cmap='viridis')
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+
+plt.show()
