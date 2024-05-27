@@ -1,0 +1,46 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+a = 12.54
+b = 16.67
+c = 17736.15
+
+def f(x, y):
+    return a * x + b * y + c
+
+# Cuadrícula
+x = np.linspace(0, 100, 100)
+y = np.linspace(0, 100, 100)
+X, Y = np.meshgrid(x, y)
+Z = f(X, Y)
+
+# Graficar
+fig = plt.figure(figsize=(10, 7))
+ax = fig.add_subplot(111, projection='3d')
+surface = ax.plot_surface(X, Y, Z, cmap='viridis', edgecolor='none', alpha=0.8)
+
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+ax.set_title('Superficie de la Montaña')
+fig.colorbar(surface, shrink=0.5, aspect=5)
+
+grad_x = 12.54
+grad_y = 16.67
+
+# Punto de referencia
+x_ref = 50
+y_ref = 50
+z_ref = f(x_ref, y_ref)
+
+# Graficar grad
+ax.quiver(x_ref, y_ref, z_ref, grad_x, grad_y, 0, color='r', length=10, normalize=True, label='Gradiente')
+
+# Graficar inverso
+ax.quiver(x_ref, y_ref, z_ref, -grad_x, -grad_y, 0, color='b', length=10, normalize=True, label='Gradiente Inverso')
+
+ax.view_init(elev=30, azim=120)
+ax.grid(True)
+ax.legend()
+plt.show()
